@@ -22,16 +22,18 @@ Before running the project, make sure you have the following installed:
 - [Prisma](https://www.prisma.io/docs/orm/prisma-client)
 
 ## Setup
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/amrelshinawy1/Product-Price-Aggregator-with-NestJS-and-Prisma.git
+
+cd product-price-aggregator
+
 npm install
 
 npx prisma migrate dev
 
 npx prisma generate
 
+
 npm run start
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-repo/product-aggregator.git
-cd product-aggregator
