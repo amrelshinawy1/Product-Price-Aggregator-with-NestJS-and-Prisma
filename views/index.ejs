@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Data</title>
+</head>
+<body>
+  <h1>Products</h1>
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Currency</th>
+        <th>Availability</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% products.forEach(product => { %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= product.description %></td>
+          <td><%= product.price %></td>
+          <td><%= product.currency %></td>
+          <td><%= product.availability ? 'Available' : 'Out of stock' %></td>
+          <td><%= product.lastUpdated %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <script>
+    // Define your API key (this can be dynamically set from server-side if needed)
+    const API_KEY = '<%= apiKey %>'; // Pass the API key from your controller
+
+    // Fetch products using API key in headers
+    async function fetchProducts() {
+      const response = await fetch('/products', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,  // Add the API key in the request headers
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch products');
+        return;
+      }
+
+      const products = await response.json();
+      console.log(products);
+      // Update table or other parts of the UI as needed
+    }
+
+    fetchProducts();
+  </script>
+</body>
+</html>
