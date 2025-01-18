@@ -1,8 +1,8 @@
 // src/product/product.service.ts
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { Product } from '@prisma/client';
-import { ExternalApisService } from 'src/external-apis/external.api.service';
+import { ExternalApisService } from '../external-apis/external.api.service';
 
 @Injectable()
 export class ProductService {

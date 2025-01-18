@@ -1,51 +1,93 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductsController } from './products.controller';
-import { ProductsService } from './products.service';
+import { ProductController } from './products.controller';
+import { ProductService } from './products.service';
+import { ApiKeyGuard } from '../auth/auth.api.key';
+import { PrismaService } from '../prisma/prisma.service';
+import { ExternalApisService } from '../external-apis/external.api.service';
 
-describe('ProductsController', () => {
-  let controller: ProductsController;
-  let service: ProductsService;
+describe('ProductController', () => {
+  let productController: ProductController;
+  let productService: ProductService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ProductsController],
+      controllers: [ProductController],
       providers: [
-        {
-          provide: ProductsService,
-          useValue: {
-            createProduct: jest.fn(),
-            findAll: jest.fn(),
-            findOne: jest.fn(),
-          },
-        },
+        ProductService,
+        PrismaService,
+        ExternalApisService,
       ],
-    }).compile();
+    })
+    .overrideGuard(ApiKeyGuard) // Mock the API key guard
+    .useValue({
+      canActivate: jest.fn().mockResolvedValue(true), // Always allow access in tests
+    })
+    .compile();
 
-    controller = module.get<ProductsController>(ProductsController);
-    service = module.get<ProductsService>(ProductsService);
+    productController = module.get<ProductController>(ProductController);
+    productService = module.get<ProductService>(ProductService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(productController).toBeDefined();
   });
 
-  it('should call createProduct', async () => {
-    const dto = { name: 'Test', description: 'Desc', price: 10, currency: 'USD', availability: true };
-    const result = { id: '1', ...dto };
 
-    jest.spyOn(service, 'createProduct').mockResolvedValue(result);
 
-    const response = await controller.createProduct(dto);
-    expect(response).toEqual(result);
-    expect(service.createProduct).toHaveBeenCalledWith(dto);
+
+  describe('getAllProducts', () => {
+    it('should return a paginated list of products', async () => {
+      const mockProducts = [
+        { id: 1, name: 'Product 1', description: 'Description 1', price: 10, currency: 'USD', availability: true, lastUpdated: new Date() },
+      ];
+      jest.spyOn(productService, 'getAllProducts').mockResolvedValue(mockProducts);
+
+      const result = await productController.getAllProducts(
+        1,
+        10,
+        '',
+        'name',
+        'asc',
+      );
+
+      expect(result).toEqual(mockProducts);
+    });
   });
 
-  it('should call findAll', async () => {
-    const result = [{ id: '1', name: 'Test' }];
-    jest.spyOn(service, 'findAll').mockResolvedValue(result);
+  describe('getProductById', () => {
+    it('should return a single product by ID', async () => {
+      const mockProduct = { id: 1, name: 'Product 1', description: 'Description 1', price: 10, currency: 'USD', availability: true, lastUpdated: new Date() };
+      jest.spyOn(productService, 'getProductById').mockResolvedValue(mockProduct);
 
-    const response = await controller.findAll({});
-    expect(response).toEqual(result);
-    expect(service.findAll).toHaveBeenCalled();
+      const result = await productController.getProductById('1');
+
+      expect(result).toEqual(mockProduct);
+    });
+  });
+
+  describe('getChanges', () => {
+    it('should return products that have been updated within a given timeframe', async () => {
+      const mockProducts = [
+        { id: 1, name: 'Product 1', description: 'Description 1', price: 10, currency: 'USD', availability: true, lastUpdated: new Date() },
+      ];
+      jest.spyOn(productService, 'getChanges').mockResolvedValue(mockProducts);
+
+      const result = await productController.getChanges('60');
+
+      expect(result).toEqual(mockProducts);
+    });
+  });
+
+  describe('sync', () => {
+    it('should trigger the sync process and return the aggregated products', async () => {
+      const mockProducts = [
+        { id: 1, name: 'Product 1', description: 'Description 1', price: 10, currency: 'USD', availability: true, lastUpdated: new Date() },
+      ];
+      jest.spyOn(productService, 'fetchAndAggregateData').mockResolvedValue(mockProducts);
+
+      const result = await productController.sync();
+
+      expect(result).toEqual(mockProducts);
+    });
   });
 });

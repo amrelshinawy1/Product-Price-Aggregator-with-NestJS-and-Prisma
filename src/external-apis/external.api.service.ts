@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { fetchMockData } from './external.api.repository'; // Import the mock data fetching function
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ExternalApisService {

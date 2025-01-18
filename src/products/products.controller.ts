@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Param, Query, Sse, Render, UseGuards } from '@nestjs/common';
 import { ProductService } from './products.service';
 import { Observable, interval, map } from 'rxjs';
-import { ApiKeyGuard } from 'src/auth/auth.api.key';
+import { ApiKeyGuard } from '../auth/auth.api.key';
 
 @Controller('products')
 export class ProductController {
